@@ -1,6 +1,22 @@
 var crypto = require('crypto');
 var User = require('../models/user.js');
 
+function checkLogin(req, res, next) {
+    if (!req.session.user) {
+        req.flash('error', '未登录!');
+        res.redirect('/login');
+    }
+    next();
+}
+
+function checkNotLogin(req, res, next) {
+    if (req.session.user) {
+        req.flash('error', '已登录!');
+        res.redirect('back');
+    }
+    next();
+}
+
 function indexFunction(req, res, next) {
     var data = { title: '主页',
         user: req.session.user,
@@ -110,4 +126,5 @@ function postController(req, res, next) {
 
 
 
-module.exports = {indexFunction, regFunction, loginFunction, postFunction, logoutFunction, regController, loginController, postController};
+module.exports = {indexFunction, regFunction, loginFunction, postFunction,
+    logoutFunction, regController, loginController, postController, checkLogin, checkNotLogin};
