@@ -21,6 +21,7 @@ User.prototype.save = function (callback) {
     //打开数据库
     MongoClient.connect(url,function (err, db) {
         if (err) {
+            db.close();
             return callback(err);
         }
         var usersTable = db.collection('users');

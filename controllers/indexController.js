@@ -1,5 +1,6 @@
 var crypto = require('crypto');
 var User = require('../models/user.js');
+var Post = require('../models/Post.js')
 
 function checkLogin(req, res, next) {
     if (!req.session.user) {
@@ -18,11 +19,17 @@ function checkNotLogin(req, res, next) {
 }
 
 function indexFunction(req, res, next) {
-    var data = { title: '主页',
-        user: req.session.user,
-        success: req.flash('success').toString(),
-        error: req.flash('error').toString() };
-    res.render('index', data);
+    Post.get(null, function (err, posts) {
+        if (err) {
+            posts = [];
+        }
+        var data = { title: '主页',
+            user: req.session.user,
+            posts: posts,
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString() };
+        res.render('index', data);
+    })
 }
 
 function regFunction(req, res, next) {
@@ -43,8 +50,11 @@ function loginFunction(req, res, next) {
 }
 
 function postFunction(req, res, next) {
-    var data = { title: '发表' };
-    res.render('index', data);
+    var data = { title: '发表',
+        user: req.session.user,
+        success: req.flash('success').toString(),
+        error: req.flash('error').toString()};
+    res.render('post', data);
 }
 
 function logoutFunction(req, res, next) {
@@ -121,7 +131,16 @@ function loginController(req, res, next) {
 }
 
 function postController(req, res, next) {
-
+    var currentUser = req.session.user,
+        post = new Post(currentUser.name,req.body.title, req.body.post);
+    post.save(function (err) {
+        if (err) {
+            req.flash('error', err);
+            return res.redirect('/');
+        }
+        req.flash('success', '发布成功！');
+        res.redirect('/');
+    })
 }
 
 
