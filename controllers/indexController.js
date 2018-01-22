@@ -1,6 +1,6 @@
 var crypto = require('crypto');
 var User = require('../models/user.js');
-var Post = require('../models/Post.js')
+var Post = require('../models/post.js')
 
 function checkLogin(req, res, next) {
     if (!req.session.user) {

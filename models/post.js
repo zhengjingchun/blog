@@ -1,7 +1,7 @@
 var mongodb = require('./db');
 var mongoClient = require('mongodb').MongoClient;
+var markdown = require('markdown').markdown;
 var url = 'mongodb://localhost:27017/blog'
-
 function Post(name, title, post) {
     this.name = name;
     this.title = title;
@@ -67,6 +67,10 @@ Post.get = function (name, callback) {
             if (err) {
                 return callback(err);
             }
+            //解析 markdown 为 html
+            docs.forEach(function (doc) {
+                doc.post = markdown.toHTML(doc.post);
+            });
             callback(null, docs);
         })
     })
