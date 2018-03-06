@@ -11,6 +11,7 @@ var flash = require('connect-flash');
 var settings = require('./settings');
 var index = require('./routes/index');
 var users = require('./routes/users');
+
 // var routes = require('./routes/index');
 
 var app = express();
@@ -39,6 +40,7 @@ app.use(session({
         port: settings.port,
     })
 }));
+
 // routes(app);
 //
 // app.listen(app.get('port'), function() {

@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var indexController = require('../controllers/indexController');
+var fileServces = require('../public/javascripts/fileService');
 
 /* GET home page. */
 router.get('/', indexController.indexFunction);
@@ -23,4 +24,8 @@ router.post('/post', indexController.postController);
 router.get('/logout', indexController.checkLogin);
 router.get('/logout', indexController.logoutFunction);
 
+router.get('/upload', indexController.checkLogin);
+router.get('/upload', indexController.uploadFunction);
+router.post('/upload', indexController.checkLogin);
+router.post('/upload', fileServces.upload.single('file'), indexController.uploadController);
 module.exports = router

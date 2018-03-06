@@ -63,6 +63,15 @@ function logoutFunction(req, res, next) {
     res.redirect('/');//登出成功后跳转到主页
 }
 
+function uploadFunction(req, res, next) {
+    res.render('upload', {
+        title: '文件上传',
+        user: req.session.user,
+        success: req.flash('success').toString(),
+        error: req.flash('error').toString()
+    });
+}
+
 function regController(req, res, next) {
     var name = req.body.name,
         password = req.body.password,
@@ -143,7 +152,10 @@ function postController(req, res, next) {
     })
 }
 
-
+function uploadController(req, res, next) {
+    req.flash('success', '文件上传成功!');
+    res.redirect('/upload');
+}
 
 module.exports = {indexFunction, regFunction, loginFunction, postFunction,
-    logoutFunction, regController, loginController, postController, checkLogin, checkNotLogin};
+    logoutFunction, uploadFunction, regController, loginController, postController, checkLogin, checkNotLogin, uploadController};
