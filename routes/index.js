@@ -29,15 +29,15 @@ router.get('/upload', indexController.uploadFunction);
 router.post('/upload', indexController.checkLogin);
 router.post('/upload', fileServces.upload.single('file'), indexController.uploadController);
 
-router.get('/u/:name', indexController.getUserPostFunction);
-router.get('/u/:name/:day/:title', indexController.getPostFunction);
+router.get('/u/:userId', indexController.getUserPostFunction);
+router.get('/p/:postId', indexController.getPostFunction);
 
-router.get('/edit/:name/:day/:title', indexController.checkLogin);
-router.get('/edit/:name/:day/:title', indexController.editFunction);
-router.post('/edit/:name/:day/:title', indexController.checkLogin);
-router.post('/edit/:name/:day/:title', indexController.editController);
+router.get('/edit/:postId', indexController.checkLogin);
+router.get('/edit/:postId', indexController.editFunction);
+router.post('/edit/:postId', indexController.checkLogin);
+router.post('/edit/:postId', indexController.editController);
 
-router.get('/remove/:name/:day/:title', indexController.checkLogin);
-router.get('/remove/:name/:day/:title', indexController.removeFunction);
+router.get('/remove/:postId', indexController.checkLogin);
+router.get('/remove/:postId', indexController.removeFunction);
 
 module.exports = router

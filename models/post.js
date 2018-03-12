@@ -1,8 +1,10 @@
 var mongodb = require('./db');
 var mongoClient = require('mongodb').MongoClient;
+var ObjectId = require('mongodb').ObjectId;
 var markdown = require('markdown').markdown;
 var url = 'mongodb://localhost:27017/blog'
-function Post(name, title, post) {
+function Post(userId, name, title, post) {
+    this.userId = userId;
     this.name = name;
     this.title = title;
     this.post = post;
@@ -23,10 +25,12 @@ Post.prototype.save = function (callback) {
     }
 
     var post = {
+        userId: this.userId,
         name: this.name,
         time: time,
         title: this.title,
-        post: this.post
+        post: this.post,
+        "comment": []
     }
 
     //打开数据库
@@ -48,7 +52,7 @@ Post.prototype.save = function (callback) {
 }
 
 //读取文章
-Post.getAll = function (name, callback) {
+Post.getAll = function (userId, callback) {
     //打开数据库
     mongoClient.connect(url, function (err, db) {
         if (err) {
@@ -58,8 +62,8 @@ Post.getAll = function (name, callback) {
 
         var postTable = db.collection('posts');
         var query = {};
-        if (name) {
-            query.name = name;
+        if (userId) {
+            query.userId = userId.toString();
         }
         //根据query查询文章
         postTable.find(query).sort({time: -1}).toArray(function (err, docs) {
@@ -77,7 +81,7 @@ Post.getAll = function (name, callback) {
 }
 
 //获取一篇文章
-Post.getOne = function (name, day, title, callback) {
+Post.getOne = function (postId, callback) {
     //打开数据库
     mongoClient.connect(url, function (err, db) {
         if (err) {
@@ -87,9 +91,7 @@ Post.getOne = function (name, day, title, callback) {
 
         var postTable = db.collection('posts');
         var query = {
-            "name": name,
-            "time.day": day,
-            "title": title
+            "_id": ObjectId(postId)
         };
         //根据query查询文章
         postTable.findOne(query, function (err, docs) {
@@ -99,14 +101,16 @@ Post.getOne = function (name, day, title, callback) {
             }
 
             //解析 markdown 为 html
-            docs.post = markdown.toHTML(docs.post);
+            if (docs) {
+                docs.post = markdown.toHTML(docs.post);
+            }
             callback(null, docs);
         })
     })
 };
 
 //编辑
-Post.edit = function (name, day, title, callback) {
+Post.edit = function (postId, callback) {
     //打开数据库
     mongoClient.connect(url, function (err, db) {
         if (err) {
@@ -116,9 +120,7 @@ Post.edit = function (name, day, title, callback) {
 
         var postTable = db.collection('posts');
         var query = {
-            "name": name,
-            "time.day": day,
-            "title": title
+            "_id": ObjectId(postId)
         };
 
         //根据query查询文章
@@ -133,7 +135,7 @@ Post.edit = function (name, day, title, callback) {
 }
 
 //保存
-Post.update = function (name, day, title, post, callback) {
+Post.update = function (postId, post, callback) {
     //打开数据库
     mongoClient.connect(url, function (err, db) {
         if (err) {
@@ -143,9 +145,7 @@ Post.update = function (name, day, title, post, callback) {
 
         var postTable = db.collection('posts');
         var query = {
-            "name": name,
-            "time.day": day,
-            "title": title
+            "_id": ObjectId(postId)
         };
 
         //根据query查询文章
@@ -162,7 +162,7 @@ Post.update = function (name, day, title, post, callback) {
 }
 
 //删除文章
-Post.remove = function (name, day, title, callback) {
+Post.remove = function (postId, callback) {
     //打开数据库
     mongoClient.connect(url, function (err, db) {
         if (err) {
@@ -172,9 +172,7 @@ Post.remove = function (name, day, title, callback) {
 
         var postTable = db.collection('posts');
         var query = {
-            "name": name,
-            "time.day": day,
-            "title": title
+            "_id": ObjectId(postId)
         };
 
         //根据query查询文章

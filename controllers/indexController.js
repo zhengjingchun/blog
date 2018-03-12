@@ -73,14 +73,14 @@ function uploadFunction(req, res, next) {
 }
 
 function getUserPostFunction(req, res, next) {
-    User.get(req.params.name, function (err, user) {
+    User.check(req.params.userId, function (err, user) {
         //检查用户是否存在
         if (!user) {
             req.flash('error', '用户不存在！');
             return res.redirect('/');
         }
         //查询并返回该用户的所有文章
-        Post.getAll(user.name, function (err, posts) {
+        Post.getAll(user._id, function (err, posts) {
             if (err) {
                 req.flash('error', err);
                 return res.redirect('/');
@@ -97,14 +97,13 @@ function getUserPostFunction(req, res, next) {
 }
 
 function getPostFunction(req, res, next) {
-    Post.getOne(req.params.name, req.params.day, req.params.title, function (err, post) {
+    Post.getOne(req.params.postId, function (err, post) {
         if (err) {
             req.flash('error', err);
             return res.redirect('/');
         }
-
         res.render('article', {
-            title: req.params.title,
+            title: post.title,
             post: post,
             user: req.session.user,
             success: req.flash('success').toString(),
@@ -139,7 +138,6 @@ function regController(req, res, next) {
             return res.redirect('/');
         }
         if (user) {
-            console.log("用户名已存在！");
             req.flash('error', "用户名已存在！");
             return res.redirect('/reg');
         }
@@ -150,7 +148,6 @@ function regController(req, res, next) {
                 return res.redirect('/reg');
             }
             req.session.user = user;
-            console.log("注册成功！");
             req.flash('success', '注册成功!');
             res.redirect('/')
         })
@@ -182,7 +179,7 @@ function loginController(req, res, next) {
 
 function postController(req, res, next) {
     var currentUser = req.session.user,
-        post = new Post(currentUser.name,req.body.title, req.body.post);
+        post = new Post(currentUser._id, currentUser.name,req.body.title, req.body.post);
     post.save(function (err) {
         if (err) {
             req.flash('error', err);
@@ -199,7 +196,7 @@ function uploadController(req, res, next) {
 }
 
 function editFunction(req, res, next) {
-    Post.edit(req.params.name, req.params.day, req.params.title, function (err) {
+    Post.edit(req.params.postId, function (err, post) {
         if (err) {
             req.flash('error', err);
             return res.redirect('/');
@@ -216,9 +213,8 @@ function editFunction(req, res, next) {
 }
 
 function editController(req, res, next) {
-    var currentUser = req.session.user;
-    Post.update(currentUser.name, req.params.day, req.params.title, req.body.post, function (err) {
-        var url = encodeURI('/u/' + req.params.name + '/' + req.params.day + '/' + req.params.title);
+    Post.update(req.params.postId, req.body.post, function (err) {
+        var url = encodeURI('/u/' + req.params.postId);
         if (err) {
             req.flash('error', err);
             return res.redirect(url);
@@ -230,7 +226,7 @@ function editController(req, res, next) {
 }
 
 function removeFunction(req, res, next) {
-    Post.remove(req.params.name, req.params.day, req.params.title, function (err) {
+    Post.remove(req.params.postId, function (err) {
         if (err) {
             req.flash('error', err);
             return res.redirect('/');

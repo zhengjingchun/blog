@@ -1,5 +1,6 @@
 var mongodb = require('./db');
 var MongoClient = require('mongodb').MongoClient;
+var ObjectId = require('mongodb').ObjectId;
 var url = 'mongodb://localhost:27017/blog';
 
 function User(user) {
@@ -46,6 +47,26 @@ User.get = function (name, callback) {
         var usersTable = db.collection('users');
         usersTable.findOne({
             name: name
+        }, function (err, user) {
+            db.close();
+            if (err) {
+                return callback(err);
+            }
+            callback(null, user);
+        })
+    })
+}
+
+//检查用户是否存在
+User.check = function (userId, callback) {
+    //打开数据库
+    MongoClient.connect(url, function (err, db) {
+        if (err) {
+            return callback(err);
+        }
+        var usersTable = db.collection('users');
+        usersTable.findOne({
+            "_id": ObjectId(userId)
         }, function (err, user) {
             db.close();
             if (err) {
