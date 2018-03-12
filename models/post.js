@@ -48,7 +48,7 @@ Post.prototype.save = function (callback) {
 }
 
 //读取文章
-Post.get = function (name, callback) {
+Post.getAll = function (name, callback) {
     //打开数据库
     mongoClient.connect(url, function (err, db) {
         if (err) {
@@ -71,6 +71,35 @@ Post.get = function (name, callback) {
             docs.forEach(function (doc) {
                 doc.post = markdown.toHTML(doc.post);
             });
+            callback(null, docs);
+        })
+    })
+}
+
+//获取一篇文章
+Post.getOne = function (name, day, title, callback) {
+    //打开数据库
+    mongoClient.connect(url, function (err, db) {
+        if (err) {
+            db.close();
+            return callback(err);
+        }
+
+        var postTable = db.collection('posts');
+        var query = {
+            "name": name,
+            "time.day": day,
+            "title": title
+        };
+        //根据query查询文章
+        postTable.findOne(query, function (err, docs) {
+            db.close();
+            if (err) {
+                return callback(err);
+            }
+
+            //解析 markdown 为 html
+            docs.post = markdown.toHTML(docs.post);
             callback(null, docs);
         })
     })

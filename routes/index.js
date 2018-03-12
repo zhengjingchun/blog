@@ -28,4 +28,8 @@ router.get('/upload', indexController.checkLogin);
 router.get('/upload', indexController.uploadFunction);
 router.post('/upload', indexController.checkLogin);
 router.post('/upload', fileServces.upload.single('file'), indexController.uploadController);
+
+router.get('/u/:name', indexController.getUserPostFunction);
+router.get('/u/:name/:day/:title', indexController.getPostFunction);
+
 module.exports = router
