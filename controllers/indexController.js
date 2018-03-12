@@ -97,7 +97,6 @@ function getUserPostFunction(req, res, next) {
 }
 
 function getPostFunction(req, res, next) {
-    console.log(req.params);
     Post.getOne(req.params.name, req.params.day, req.params.title, function (err, post) {
         if (err) {
             req.flash('error', err);
@@ -199,6 +198,49 @@ function uploadController(req, res, next) {
     res.redirect('/upload');
 }
 
+function editFunction(req, res, next) {
+    Post.edit(req.params.name, req.params.day, req.params.title, function (err) {
+        if (err) {
+            req.flash('error', err);
+            return res.redirect('/');
+        }
+
+        res.render('edit', {
+            title: '编辑',
+            post: post,
+            user: req.session.user,
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString()
+        })
+    })
+}
+
+function editController(req, res, next) {
+    var currentUser = req.session.user;
+    Post.update(currentUser.name, req.params.day, req.params.title, req.body.post, function (err) {
+        var url = encodeURI('/u/' + req.params.name + '/' + req.params.day + '/' + req.params.title);
+        if (err) {
+            req.flash('error', err);
+            return res.redirect(url);
+        }
+
+        req.flash('success', '修改成功!');
+        res.redirect(url);//成功！返回文章页
+    })
+}
+
+function removeFunction(req, res, next) {
+    Post.remove(req.params.name, req.params.day, req.params.title, function (err) {
+        if (err) {
+            req.flash('error', err);
+            return res.redirect('/');
+        }
+
+        req.flash('success', '删除成功!');
+        res.redirect('/');
+    })
+}
+
 module.exports = {indexFunction, regFunction, loginFunction, postFunction,
     logoutFunction, uploadFunction, regController, loginController, postController, checkLogin, checkNotLogin, uploadController,
-    getUserPostFunction, getPostFunction};
+    getUserPostFunction, getPostFunction, editFunction, editController, removeFunction};

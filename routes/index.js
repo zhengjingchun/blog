@@ -32,4 +32,12 @@ router.post('/upload', fileServces.upload.single('file'), indexController.upload
 router.get('/u/:name', indexController.getUserPostFunction);
 router.get('/u/:name/:day/:title', indexController.getPostFunction);
 
+router.get('/edit/:name/:day/:title', indexController.checkLogin);
+router.get('/edit/:name/:day/:title', indexController.editFunction);
+router.post('/edit/:name/:day/:title', indexController.checkLogin);
+router.post('/edit/:name/:day/:title', indexController.editController);
+
+router.get('/remove/:name/:day/:title', indexController.checkLogin);
+router.get('/remove/:name/:day/:title', indexController.removeFunction);
+
 module.exports = router

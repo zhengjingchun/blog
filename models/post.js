@@ -103,4 +103,89 @@ Post.getOne = function (name, day, title, callback) {
             callback(null, docs);
         })
     })
+};
+
+//编辑
+Post.edit = function (name, day, title, callback) {
+    //打开数据库
+    mongoClient.connect(url, function (err, db) {
+        if (err) {
+            db.close();
+            return callback(err);
+        }
+
+        var postTable = db.collection('posts');
+        var query = {
+            "name": name,
+            "time.day": day,
+            "title": title
+        };
+
+        //根据query查询文章
+        postTable.findOne(query, function (err, docs) {
+            db.close();
+            if (err) {
+                return callback(err);
+            }
+            callback(null, docs);
+        })
+    })
+}
+
+//保存
+Post.update = function (name, day, title, post, callback) {
+    //打开数据库
+    mongoClient.connect(url, function (err, db) {
+        if (err) {
+            db.close();
+            return callback(err);
+        }
+
+        var postTable = db.collection('posts');
+        var query = {
+            "name": name,
+            "time.day": day,
+            "title": title
+        };
+
+        //根据query查询文章
+        postTable.updateOne(query, {
+            $set: {post: post}
+        }, function (err, docs) {
+            db.close();
+            if (err) {
+                return callback(err);
+            }
+            callback(null, docs);
+        })
+    })
+}
+
+//删除文章
+Post.remove = function (name, day, title, callback) {
+    //打开数据库
+    mongoClient.connect(url, function (err, db) {
+        if (err) {
+            db.close();
+            return callback(err);
+        }
+
+        var postTable = db.collection('posts');
+        var query = {
+            "name": name,
+            "time.day": day,
+            "title": title
+        };
+
+        //根据query查询文章
+        postTable.removeOne(query, {
+            w: 1
+        }, function (err) {
+            db.close();
+            if (err) {
+                return callback(err);
+            }
+            callback(null);
+        })
+    })
 }
