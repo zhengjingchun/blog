@@ -52,7 +52,7 @@ Post.prototype.save = function (callback) {
 }
 
 //读取文章
-Post.getAll = function (userId, callback) {
+Post.getTen = function (userId, page, callback) {
     //打开数据库
     mongoClient.connect(url, function (err, db) {
         if (err) {
@@ -66,18 +66,26 @@ Post.getAll = function (userId, callback) {
             query.userId = userId.toString();
         }
         //根据query查询文章
-        postTable.find(query).sort({time: -1}).toArray(function (err, docs) {
-            db.close();
-            if (err) {
+        postTable.count(query, function (error, total) {
+            if (error) {
+                db.close();
                 return callback(err);
             }
-            //解析 markdown 为 html
-            docs.forEach(function (doc) {
-                if (doc.post) {
-                    doc.post = markdown.toHTML(doc.post);
+            postTable.find(query,{
+                skip: (page - 1)*10,
+                limit: 10
+            }).sort({time: -1}).toArray(function (err, docs) {
+                if (err) {
+                    return callback(err);
                 }
-            });
-            callback(null, docs);
+                //解析 markdown 为 html
+                docs.forEach(function (doc) {
+                    if (doc.post) {
+                        doc.post = markdown.toHTML(doc.post);
+                    }
+                });
+                callback(null, docs, total);
+            })
         })
     })
 }

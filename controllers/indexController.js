@@ -20,13 +20,17 @@ function checkNotLogin(req, res, next) {
 }
 
 function indexFunction(req, res, next) {
-    Post.getAll(null, function (err, posts) {
+    var page = req.query.p ? parseInt(req.query.p) : 1;
+    Post.getTen(null, page, function (err, posts, total) {
         if (err) {
             posts = [];
         }
         var data = { title: '主页',
             user: req.session.user,
             posts: posts,
+            page: page,
+            isFirstPage: (page - 1) === 0,
+            isLastPage: ((page - 1) * 10 + posts.length) === total,
             success: req.flash('success').toString(),
             error: req.flash('error').toString() };
         res.render('index', data);
@@ -75,13 +79,14 @@ function uploadFunction(req, res, next) {
 
 function getUserPostFunction(req, res, next) {
     User.check(req.params.userId, function (err, user) {
+        var page = req.query.p ? parseInt(req.query.p) : 1;
         //检查用户是否存在
         if (!user) {
             req.flash('error', '用户不存在！');
             return res.redirect('/');
         }
         //查询并返回该用户的所有文章
-        Post.getAll(user._id, function (err, posts) {
+        Post.getTen(user._id, page, function (err, posts, total) {
             if (err) {
                 req.flash('error', err);
                 return res.redirect('/');
@@ -89,6 +94,9 @@ function getUserPostFunction(req, res, next) {
             res.render('user', {
                 title: user.name,
                 posts: posts,
+                page: page,
+                isFirstPage: (page - 1) === 0,
+                isLastPage: ((page - 1) * 10 + posts.length) === total,
                 user : req.session.user,
                 success : req.flash('success').toString(),
                 error : req.flash('error').toString()
