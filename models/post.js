@@ -30,7 +30,7 @@ Post.prototype.save = function (callback) {
         time: time,
         title: this.title,
         post: this.post,
-        "comment": []
+        comments: []
     }
 
     //打开数据库
@@ -73,7 +73,9 @@ Post.getAll = function (userId, callback) {
             }
             //解析 markdown 为 html
             docs.forEach(function (doc) {
-                doc.post = markdown.toHTML(doc.post);
+                if (doc.post) {
+                    doc.post = markdown.toHTML(doc.post);
+                }
             });
             callback(null, docs);
         })
@@ -94,17 +96,22 @@ Post.getOne = function (postId, callback) {
             "_id": ObjectId(postId)
         };
         //根据query查询文章
-        postTable.findOne(query, function (err, docs) {
+        postTable.findOne(query, function (err, doc) {
             db.close();
             if (err) {
                 return callback(err);
             }
 
             //解析 markdown 为 html
-            if (docs) {
-                docs.post = markdown.toHTML(docs.post);
+            if (doc) {
+                doc.post = markdown.toHTML(doc.post);
+                if (doc.comments && doc.comments.length) {
+                    doc.comments.forEach(function (comment) {
+                        comment.content = markdown.toHTML(comment.content);
+                    });
+                }
             }
-            callback(null, docs);
+            callback(null, doc);
         })
     })
 };

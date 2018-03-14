@@ -77,3 +77,16 @@ article a:hover {
     color:#fff;
     -webkit-transition:color .2s linear;
 }
+.line {
+    position: relative;
+}
+
+.line:after{
+    width: 100%;
+    height: 1px;
+    content: '';
+    display: block;
+    position: absolute;
+    background-color: #888;
+    transform: scaleY(.5);
+}

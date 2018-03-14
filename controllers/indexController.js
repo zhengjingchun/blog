@@ -1,6 +1,7 @@
 var crypto = require('crypto');
 var User = require('../models/user.js');
-var Post = require('../models/post.js')
+var Post = require('../models/post.js');
+var Comment = require('../models/comment.js');
 
 function checkLogin(req, res, next) {
     if (!req.session.user) {
@@ -112,6 +113,35 @@ function getPostFunction(req, res, next) {
     })
 }
 
+function editFunction(req, res, next) {
+    Post.edit(req.params.postId, function (err, post) {
+        if (err) {
+            req.flash('error', err);
+            return res.redirect('/');
+        }
+
+        res.render('edit', {
+            title: '编辑',
+            post: post,
+            user: req.session.user,
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString()
+        })
+    })
+}
+
+function removeFunction(req, res, next) {
+    Post.remove(req.params.postId, function (err) {
+        if (err) {
+            req.flash('error', err);
+            return res.redirect('/');
+        }
+
+        req.flash('success', '删除成功!');
+        res.redirect('/');
+    })
+}
+
 function regController(req, res, next) {
     var name = req.body.name,
         password = req.body.password,
@@ -195,23 +225,6 @@ function uploadController(req, res, next) {
     res.redirect('/upload');
 }
 
-function editFunction(req, res, next) {
-    Post.edit(req.params.postId, function (err, post) {
-        if (err) {
-            req.flash('error', err);
-            return res.redirect('/');
-        }
-
-        res.render('edit', {
-            title: '编辑',
-            post: post,
-            user: req.session.user,
-            success: req.flash('success').toString(),
-            error: req.flash('error').toString()
-        })
-    })
-}
-
 function editController(req, res, next) {
     Post.update(req.params.postId, req.body.post, function (err) {
         var url = encodeURI('/u/' + req.params.postId);
@@ -225,18 +238,38 @@ function editController(req, res, next) {
     })
 }
 
-function removeFunction(req, res, next) {
-    Post.remove(req.params.postId, function (err) {
+function getPostController(req, res, next) {
+    var date = new Date();
+
+    var time = {
+        date: date,
+        year : date.getFullYear(),
+        month : date.getFullYear() + "-" + (date.getMonth() + 1),
+        day : date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate(),
+        minute : date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +
+        date.getHours() + ":" + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes())
+    };
+
+    var comment = {
+        name: req.body.name,
+        email: req.body.email,
+        website: req.body.website,
+        content: req.body.content,
+        time: time
+    };
+
+    var newComment = new Comment(req.params.postId, comment);
+    newComment.save(function (err) {
         if (err) {
             req.flash('error', err);
-            return res.redirect('/');
+            return res.redirect('back');
         }
+        req.flash('success', '留言成功!');
+        res.redirect('back');
+    });
 
-        req.flash('success', '删除成功!');
-        res.redirect('/');
-    })
 }
 
 module.exports = {indexFunction, regFunction, loginFunction, postFunction,
     logoutFunction, uploadFunction, regController, loginController, postController, checkLogin, checkNotLogin, uploadController,
-    getUserPostFunction, getPostFunction, editFunction, editController, removeFunction};
+    getUserPostFunction, getPostFunction, editFunction, editController, removeFunction, getPostController};

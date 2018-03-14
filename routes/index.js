@@ -31,6 +31,7 @@ router.post('/upload', fileServces.upload.single('file'), indexController.upload
 
 router.get('/u/:userId', indexController.getUserPostFunction);
 router.get('/p/:postId', indexController.getPostFunction);
+router.post('/p/:postId', indexController.getPostController);
 
 router.get('/edit/:postId', indexController.checkLogin);
 router.get('/edit/:postId', indexController.editFunction);
