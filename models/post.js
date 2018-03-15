@@ -32,7 +32,8 @@ Post.prototype.save = function (callback) {
         title: this.title,
         post: this.post,
         tags: this.tags,
-        comments: []
+        comments: [],
+        pv: 0
     }
 
     //打开数据库
@@ -107,11 +108,23 @@ Post.getOne = function (postId, callback) {
         };
         //根据query查询文章
         postTable.findOne(query, function (err, doc) {
-            db.close();
             if (err) {
+                db.close();
                 return callback(err);
             }
-
+            if (doc) {
+                //每访问 1 次，pv 值增加 1
+                postTable.updateOne(query, {
+                    $inc: {"pv": 1}
+                }, function (err) {
+                    db.close();
+                    console.log(err)
+                    if (err) {
+                        return callback(err);
+                    }
+                });
+            }
+            db.close();
             //解析 markdown 为 html
             if (doc) {
                 doc.post = markdown.toHTML(doc.post);
