@@ -156,7 +156,6 @@ function getArchiveFunction(req, res, next) {
             req.flash('error', err);
             return res.redirect('/');
         }
-        console.log(posts)
         res.render('archive', {
             title: '存档',
             user: req.session.user,
@@ -165,6 +164,39 @@ function getArchiveFunction(req, res, next) {
             error: req.flash('error').toString()
         })
     });
+}
+
+function getTagsFunction(req, res, next) {
+    Post.getTags(function (err, tags) {
+        if (err) {
+            req.flash('error', err);
+            return res.redirect('/');
+        }
+        res.render('tags', {
+            title: '标签',
+            tags: tags,
+            user: req.session.user,
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString()
+        });
+    });
+}
+
+function getTagFunction(req, res, next) {
+    Post.getTag(req.params.tag, function (err, posts) {
+        if (err) {
+            req.flash('error',err);
+            return res.redirect('/');
+        }
+
+        res.render('tag', {
+            title: 'TAG:' + req.params.tag,
+            posts: posts,
+            user: req.session.user,
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString()
+        });
+    })
 }
 
 function regController(req, res, next) {
@@ -234,7 +266,8 @@ function loginController(req, res, next) {
 
 function postController(req, res, next) {
     var currentUser = req.session.user,
-        post = new Post(currentUser._id, currentUser.name,req.body.title, req.body.post);
+        tags = [req.body.tag1, req.body.tag2, req.body.tag3],
+        post = new Post(currentUser._id, currentUser.name,req.body.title, req.body.post, tags);
     post.save(function (err) {
         if (err) {
             req.flash('error', err);
@@ -297,4 +330,5 @@ function getPostController(req, res, next) {
 
 module.exports = {indexFunction, regFunction, loginFunction, postFunction,
     logoutFunction, uploadFunction, regController, loginController, postController, checkLogin, checkNotLogin, uploadController,
-    getUserPostFunction, getPostFunction, editFunction, editController, removeFunction, getPostController, getArchiveFunction};
+    getUserPostFunction, getPostFunction, editFunction, editController, removeFunction, getPostController, getArchiveFunction,
+    getTagsFunction, getTagFunction};

@@ -3,11 +3,12 @@ var mongoClient = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectId;
 var markdown = require('markdown').markdown;
 var url = 'mongodb://localhost:27017/blog'
-function Post(userId, name, title, post) {
+function Post(userId, name, title, post, tags) {
     this.userId = userId;
     this.name = name;
     this.title = title;
     this.post = post;
+    this.tags = tags;
 }
 
 module.exports = Post;
@@ -30,6 +31,7 @@ Post.prototype.save = function (callback) {
         time: time,
         title: this.title,
         post: this.post,
+        tags: this.tags,
         comments: []
     }
 
@@ -216,8 +218,7 @@ Post.getArchive = function(callback) {
         postTable.find({}, {
             "name": 1,
             "time": 1,
-            "title": 1,
-            "userId": 1
+            "title": 1
         }).sort({
             time: -1
         }).toArray(function (err, docs) {
@@ -227,5 +228,55 @@ Post.getArchive = function(callback) {
             }
             callback(null, docs);
         })
+    })
+}
+
+//获取标签
+Post.getTags = function (callback) {
+    //打开数据库
+    mongoClient.connect(url, function (err, db) {
+        if (err) {
+            db.close();
+            return callback(err);
+        }
+
+        var postTable = db.collection('posts');
+        //distinct 用来找出给定键的所有不同值
+        postTable.distinct('tags', function (err, tags) {
+            db.close();
+            if (err) {
+                return callback(err);
+            }
+            callback(null, tags);
+        })
+    })
+}
+
+//获取标签对应的文章
+Post.getTag = function (tag, callback) {
+    //打开数据库
+    mongoClient.connect(url, function (err, db) {
+        if (err) {
+            db.close();
+            return callback(err);
+        }
+        var postTable = db.collection('posts');
+        //查询所有 tags 数组内包含 tag 的文档
+        //并返回只含有 name、time、title 组成的数组
+        postTable.find({
+            "tags": tag
+        }, {
+            "name": 1,
+            "time": 1,
+            "title": 1
+        }).sort({
+            time: -1
+        }).toArray(function (err, docs) {
+            mongodb.close();
+            if (err) {
+                return callback(err);
+            }
+            callback(null, docs);
+        });
     })
 }

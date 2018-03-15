@@ -42,5 +42,7 @@ router.get('/remove/:postId', indexController.checkLogin);
 router.get('/remove/:postId', indexController.removeFunction);
 
 router.get('/archive', indexController.getArchiveFunction);
+router.get('/tags', indexController.getTagsFunction);
+router.get('/tags/:tag', indexController.getTagFunction);
 
 module.exports = router
