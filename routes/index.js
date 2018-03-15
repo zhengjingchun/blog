@@ -41,4 +41,6 @@ router.post('/edit/:postId', indexController.editController);
 router.get('/remove/:postId', indexController.checkLogin);
 router.get('/remove/:postId', indexController.removeFunction);
 
+router.get('/archive', indexController.getArchiveFunction);
+
 module.exports = router

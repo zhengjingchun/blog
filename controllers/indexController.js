@@ -150,6 +150,23 @@ function removeFunction(req, res, next) {
     })
 }
 
+function getArchiveFunction(req, res, next) {
+    Post.getArchive(function (err, posts) {
+        if (err) {
+            req.flash('error', err);
+            return res.redirect('/');
+        }
+        console.log(posts)
+        res.render('archive', {
+            title: '存档',
+            user: req.session.user,
+            posts: posts,
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString()
+        })
+    });
+}
+
 function regController(req, res, next) {
     var name = req.body.name,
         password = req.body.password,
@@ -280,4 +297,4 @@ function getPostController(req, res, next) {
 
 module.exports = {indexFunction, regFunction, loginFunction, postFunction,
     logoutFunction, uploadFunction, regController, loginController, postController, checkLogin, checkNotLogin, uploadController,
-    getUserPostFunction, getPostFunction, editFunction, editController, removeFunction, getPostController};
+    getUserPostFunction, getPostFunction, editFunction, editController, removeFunction, getPostController, getArchiveFunction};

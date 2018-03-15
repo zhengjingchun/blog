@@ -202,3 +202,30 @@ Post.remove = function (postId, callback) {
         })
     })
 }
+
+//返回所有文章存档信息
+Post.getArchive = function(callback) {
+    //打开数据库
+    mongoClient.connect(url, function (err, db) {
+        if (err) {
+            db.close();
+            return callback(err);
+        }
+
+        var postTable = db.collection('posts');
+        postTable.find({}, {
+            "name": 1,
+            "time": 1,
+            "title": 1,
+            "userId": 1
+        }).sort({
+            time: -1
+        }).toArray(function (err, docs) {
+            db.close();
+            if (err) {
+                return callback(err);
+            }
+            callback(null, docs);
+        })
+    })
+}
