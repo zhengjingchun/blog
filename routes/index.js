@@ -16,8 +16,7 @@ router.get('/login', indexController.loginFunction);
 router.post('/login', indexController.checkNotLogin);
 router.post('/login', indexController.loginController);
 
-router.get('/post', indexController.checkLogin);
-router.get('/post', indexController.postFunction);
+router.get('/post', indexController.checkLogin, indexController.postFunction);
 router.post('/post', indexController.checkLogin);
 router.post('/post', indexController.postController);
 
@@ -29,6 +28,7 @@ router.get('/upload', indexController.uploadFunction);
 router.post('/upload', indexController.checkLogin);
 router.post('/upload', fileServces.upload.single('file'), indexController.uploadController);
 
+router.get('/search', indexController.searchFunction);
 router.get('/u/:userId', indexController.getUserPostFunction);
 router.get('/p/:postId', indexController.getPostFunction);
 router.post('/p/:postId', indexController.getPostController);

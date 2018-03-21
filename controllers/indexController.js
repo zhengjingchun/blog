@@ -6,7 +6,7 @@ var Comment = require('../models/comment.js');
 function checkLogin(req, res, next) {
     if (!req.session.user) {
         req.flash('error', '未登录!');
-        res.redirect('/login');
+        return res.redirect('/login')
     }
     next();
 }
@@ -14,7 +14,7 @@ function checkLogin(req, res, next) {
 function checkNotLogin(req, res, next) {
     if (req.session.user) {
         req.flash('error', '已登录!');
-        res.redirect('back');
+        return res.redirect('back');
     }
     next();
 }
@@ -199,6 +199,22 @@ function getTagFunction(req, res, next) {
     })
 }
 
+function searchFunction(req, res, next) {
+    Post.search(req.query.keyword, function (err, posts) {
+        if (err) {
+            req.flash('error', err);
+            return res.redirect('/');
+        }
+        res.render('search', {
+            title: "搜索:" + req.query.keyword,
+            posts: posts,
+            user: req.session.user,
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString()
+        });
+    });
+}
+
 function regController(req, res, next) {
     var name = req.body.name,
         password = req.body.password,
@@ -285,7 +301,7 @@ function uploadController(req, res, next) {
 
 function editController(req, res, next) {
     Post.update(req.params.postId, req.body.post, function (err) {
-        var url = encodeURI('/u/' + req.params.postId);
+        var url = encodeURI('/p/' + req.params.postId);
         if (err) {
             req.flash('error', err);
             return res.redirect(url);
@@ -328,7 +344,7 @@ function getPostController(req, res, next) {
 
 }
 
-module.exports = {indexFunction, regFunction, loginFunction, postFunction,
+module.exports = {indexFunction, regFunction, loginFunction, postFunction, searchFunction,
     logoutFunction, uploadFunction, regController, loginController, postController, checkLogin, checkNotLogin, uploadController,
     getUserPostFunction, getPostFunction, editFunction, editController, removeFunction, getPostController, getArchiveFunction,
     getTagsFunction, getTagFunction};
